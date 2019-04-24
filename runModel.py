@@ -22,21 +22,21 @@ def runNetwork(batch_size, train_steps):
                                          params = { 'features': my_feature_columns,
                                                     'hidden_layers': [800, 800],
                                                      'num_of_classes': 10,},
-                                         model_dir='/Users/zahra_abasiyan/PycharmProjects/DeepLearning/HW1/model',
+                                         model_dir='/model',
                                          config = configuration,
-                                         warm_start_from='/Users/zahra_abasiyan/PycharmProjects/DeepLearning/HW1/model')
+                                         warm_start_from='/model')
 
     classifier = tf.estimator.Estimator(model_fn=model,
                                              params={'features': my_feature_columns,
                                                      'hidden_layers': [800, 800],
                                                      'num_of_classes': 10, },
-                                             model_dir='/Users/zahra_abasiyan/PycharmProjects/DeepLearning/HW1/model',
+                                             model_dir='/model',
                                              config=configuration)
 
 
     print('training started')
 
-    directory = '/Users/zahra_abasiyan/PycharmProjects/DeepLearning/HW1/model/model.ckpt-'
+    directory = '/model/model.ckpt-'
 
     validation_loss = []
 
@@ -87,14 +87,14 @@ def runNetwork(batch_size, train_steps):
 
     print(validation_accuracy)
 
-    savePickle(validation_accuracy, validation_loss, '/Users/zahra_abasiyan/PycharmProjects/DeepLearning/HW1/model/data.pkl')
+    savePickle(validation_accuracy, validation_loss, '/model/data.pkl')
 
     showModelPerformance(classifier_warm, path)
 
 
 def showModelPerformance(classifier_warm, path ):
 
-    eval_accuracy, eval_loss = loadPickle('/Users/zahra_abasiyan/PycharmProjects/DeepLearning/HW1/model/data.pkl')
+    eval_accuracy, eval_loss = loadPickle('/model/data.pkl')
 
     eval_result = classifier_warm.evaluate(input_fn=lambda:
                     input_fn_eval(test_x, label_test, batch_size),checkpoint_path=path)
@@ -192,51 +192,49 @@ def runFromModel(batch_size, train_steps, beginckpt):
                                              params={'features': my_feature_columns,
                                                      'hidden_layers': [500],
                                                      'num_of_classes': 10, },
-                                             model_dir='/Users/zahra_abasiyan/PycharmProjects/DeepLearning/HW1/model',
+                                             model_dir='/model',
                                              config=configuration,
-                                             warm_start_from='/Users/zahra_abasiyan/PycharmProjects/DeepLearning/HW1/model')
+                                             warm_start_from='/model')
 
     print('training started')
 
-    directory = '/Users/zahra_abasiyan/PycharmProjects/DeepLearning/HW1/model/model.ckpt-'
+    eval_loss = []
 
-    # eval_loss = []
-
-    # eval_accuracy = []
+    eval_accuracy = []
 
 
-    # tf.summary.scalar('validation_acc', eval_accuracy)
-    #
-    # tf.summary.scalar('validation_loss', eval_loss)
-    #
-    # step_length = 2
-    #
-    # count = int(train_steps / step_length) + 1 + beginckpt
+    tf.summary.scalar('validation_acc', eval_accuracy)
+    
+    tf.summary.scalar('validation_loss', eval_loss)
+    
+    step_length = 2
+    
+    count = int(train_steps / step_length) + 1 + beginckpt
 
-    # for step in range((1+beginckpt), count):
-    #
-    #     classifier_warm.train(input_fn=lambda: input_fn_train(train_x, label_train, batch_size),
-    #                               steps=step_length)
-    #
-    #     print('Evaluation started')
-    #
-    #     path = directory + str(step * step_length)
-    #
-    #     print(path)
-    #
-    #     print(step)
-    #
-    #     eval_result = classifier_warm.evaluate(
-    #             input_fn=lambda: input_fn_eval(validation_x, validation_label, batch_size)
-    #             , checkpoint_path=path)
-    #
-    #     print(eval_result)
-    #
-    #     eval_loss.append(eval_result['loss'])
-    #
-    #     eval_accuracy.append(eval_result['accuracy'])
-    #
-    #     print('\nvalidation set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
+    for step in range((1+beginckpt), count):
+    
+        classifier_warm.train(input_fn=lambda: input_fn_train(train_x, label_train, batch_size),
+                                  steps=step_length)
+    
+        print('Evaluation started')
+    
+        path = directory + str(step * step_length)
+    
+        print(path)
+    
+        print(step)
+    
+        eval_result = classifier_warm.evaluate(
+                input_fn=lambda: input_fn_eval(validation_x, validation_label, batch_size)
+                , checkpoint_path=path)
+    
+        print(eval_result)
+    
+        eval_loss.append(eval_result['loss'])
+    
+        eval_accuracy.append(eval_result['accuracy'])
+    
+        print('\nvalidation set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
 
     path = directory + str(100)
 
@@ -249,6 +247,6 @@ train_steps = 15
 
 runNetwork(batch_size, train_steps)
 
-# runFromModel(batch_size, train_steps, 50)
+runFromModel(batch_size, train_steps, 50)
 
-# evalModel('/Users/zahra_abasiyan/PycharmProjects/DeepLearning/HW1/model.ckpt-70')
+# evalModel('/model.ckpt-70')
