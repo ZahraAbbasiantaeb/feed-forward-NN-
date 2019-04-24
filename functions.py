@@ -97,7 +97,7 @@ def model(features, labels, mode, params ):
 
         summary_hook = tf.train.SummarySaverHook(
             2,
-            output_dir='/Users/zahra_abasiyan/PycharmProjects/DeepLearning/HW1/log',
+            output_dir='/log',
             summary_op=tf.summary.merge_all())
 
         return tf.estimator.EstimatorSpec(mode, loss=loss, train_op=train_op, predictions=predicted_classes,
