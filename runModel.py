@@ -177,76 +177,10 @@ def evalModel(path):
     return
 
 
-def runFromModel(batch_size, train_steps, beginckpt):
-
-    my_feature_columns = []
-
-    for key in train_x.keys():
-        my_feature_columns.append(tf.feature_column.numeric_column(key=key))
-
-    configuration = tf.estimator.RunConfig(save_summary_steps=4,
-                                           keep_checkpoint_max=1,
-                                           save_checkpoints_steps=5)
-
-    classifier_warm = tf.estimator.Estimator(model_fn=model,
-                                             params={'features': my_feature_columns,
-                                                     'hidden_layers': [500],
-                                                     'num_of_classes': 10, },
-                                             model_dir='/model',
-                                             config=configuration,
-                                             warm_start_from='/model')
-
-    print('training started')
-
-    eval_loss = []
-
-    eval_accuracy = []
-
-
-    tf.summary.scalar('validation_acc', eval_accuracy)
-    
-    tf.summary.scalar('validation_loss', eval_loss)
-    
-    step_length = 2
-    
-    count = int(train_steps / step_length) + 1 + beginckpt
-
-    for step in range((1+beginckpt), count):
-    
-        classifier_warm.train(input_fn=lambda: input_fn_train(train_x, label_train, batch_size),
-                                  steps=step_length)
-    
-        print('Evaluation started')
-    
-        path = directory + str(step * step_length)
-    
-        print(path)
-    
-        print(step)
-    
-        eval_result = classifier_warm.evaluate(
-                input_fn=lambda: input_fn_eval(validation_x, validation_label, batch_size)
-                , checkpoint_path=path)
-    
-        print(eval_result)
-    
-        eval_loss.append(eval_result['loss'])
-    
-        eval_accuracy.append(eval_result['accuracy'])
-    
-        print('\nvalidation set accuracy: {accuracy:0.3f}\n'.format(**eval_result))
-
-    path = directory + str(100)
-
-    showModelPerformance(classifier_warm, path)
-
-
 batch_size = 200
 
 train_steps = 15
 
 runNetwork(batch_size, train_steps)
-
-runFromModel(batch_size, train_steps, 50)
 
 # evalModel('/model.ckpt-70')
