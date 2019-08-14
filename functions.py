@@ -73,8 +73,6 @@ def model(features, labels, mode, params ):
 
     loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
-    # loss = tf.sqrt(tf.reduce_mean(tf.square(logits - labels)))
-
     accuracy = tf.metrics.accuracy(labels=labels, predictions=predicted_classes, name='acc_op')
 
     metrics = {'accuracy': accuracy}
